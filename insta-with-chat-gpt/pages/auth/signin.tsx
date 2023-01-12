@@ -1,7 +1,61 @@
 import React from "react";
+import {
+  ClientSafeProvider,
+  getProviders,
+  LiteralUnion,
+  signIn as SignIntoProvider,
+} from "next-auth/react";
+import { BuiltInProviderType } from "next-auth/providers";
+import { NextPage } from "next";
+import Header from "../../components/Header";
 
-function signIn() {
-  return <div>I am the sign in page.</div>;
+type PageProps = {
+  providers: Promise<Record<
+    LiteralUnion<BuiltInProviderType, string>,
+    ClientSafeProvider
+  > | null>;
+};
+
+const signIn: NextPage<PageProps> = (props) => {
+  const { providers } = props;
+  return (
+    <>
+      <Header />
+
+      <div className="flex flex-col items-center justify-end min-h-screen py-2 -mt-64 px-14 text-center">
+        <img className="w-80" src="https://links.papareact.com/ocw" alt="" />
+        <p className="font-xs italic">
+          This is not a REAL app, it is built for educational purposes only.
+        </p>
+        <div className="mt-40">
+          {Object.values(providers).map((provider) => (
+            <div key={provider.name}>
+              <button
+                className="p-3 bg-blue-500 rounded-lg text-white"
+                onClick={() =>
+                  SignIntoProvider(provider.id, {
+                    callbackUrl: "/",
+                  })
+                }
+              >
+                Sign in with {provider.name}
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+};
+
+export async function getServerSideProps() {
+  const providers = await getProviders();
+
+  return {
+    props: {
+      providers,
+    },
+  };
 }
 
 export default signIn;
