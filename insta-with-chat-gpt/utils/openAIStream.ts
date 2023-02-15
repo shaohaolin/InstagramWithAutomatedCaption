@@ -49,7 +49,6 @@ export async function OpenAIStream(
 
             // Convert text to UTF-8 format
             const queue = encoder.encode(text);
-            console.log(`Text: ${text} Encode: ${queue}`);
 
             // Add encoded text to Readable Bytes Stream Controller
             controller.enqueue(queue);
