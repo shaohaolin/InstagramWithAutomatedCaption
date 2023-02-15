@@ -4,14 +4,14 @@ import LoadingDots from "./LoadingDots";
 import DropDown, { VibeType } from "./DropDown";
 import { AnimatePresence, motion } from "framer-motion";
 import ResizablePanel from "./ResizablePanel";
+import { useRecoilState } from "recoil";
+import { captionState } from "../atoms/captionAtom";
 
 function Caption() {
   const [loading, setLoading] = useState(false);
-  const [caption, setCaption] = useState("");
-  const [vibe, setVibe] = useState<VibeType>("Professional");
+  const [caption, setCaption] = useRecoilState(captionState);
+  const [vibe, setVibe] = useState<VibeType>("Standard");
   const [generatedCaptions, setGeneratedCaptions] = useState<String>("");
-
-  console.log("Streamed response: ", generatedCaptions);
 
   const prompt =
     vibe === "Funny"
@@ -91,7 +91,7 @@ function Caption() {
           <DropDown vibe={vibe} setVibe={(newVibe) => setVibe(newVibe)} />
         </div>
 
-        {!loading && (
+        {!loading && generatedCaptions === "" && (
           <button
             className="bg-black rounded-xl text-white font-medium px-4 py-2 sm:mt-10 mt-8 hover:bg-black/80 w-full"
             onClick={(e) => generatecaption(e)}
@@ -114,10 +114,14 @@ function Caption() {
           <motion.div className="space-y-10 my-10">
             {generatedCaptions && (
               <>
-                <div>
-                  <h2 className="sm:text-4xl text-3xl font-bold text-slate-900 mx-auto">
-                    Your generated captions
-                  </h2>
+                <div className="flex mb-5 items-center space-x-3">
+                  <Image
+                    src="/3-black.png"
+                    width={30}
+                    height={30}
+                    alt="1 icon"
+                  />
+                  <p className="text-left font-medium">Select your captions.</p>
                 </div>
                 <div className="space-y-8 flex flex-col items-center justify-center max-w-xl mx-auto">
                   {generatedCaptions
@@ -128,6 +132,7 @@ function Caption() {
                         <div
                           className="bg-white rounded-xl shadow-md p-4 hover:bg-gray-100 transition cursor-copy border"
                           key={generatedCaption}
+                          onClick={() => setCaption(generatedCaption)}
                         >
                           <p>{generatedCaption}</p>
                         </div>

@@ -14,14 +14,17 @@ import {
 import { useSession } from "next-auth/react";
 import { ref, getDownloadURL, uploadString } from "@firebase/storage";
 import Caption from "./Caption";
+import { captionState } from "../atoms/captionAtom";
 
 function Modal() {
   const { data: session } = useSession();
   const [open, setOpen] = useRecoilState(modalState);
+  const [caption, setCaption] = useRecoilState(captionState);
   const filePickerRef = useRef<HTMLInputElement>(null);
-  const captionRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+
+  console.log(`captions: ${caption}`);
 
   const addImageToPost = (e: React.ChangeEvent<HTMLInputElement>) => {
     const reader = new FileReader();
@@ -46,7 +49,7 @@ function Modal() {
     const docRef = await addDoc(collection(db, "posts"), {
       //@ts-expect-error
       username: session?.user?.username,
-      caption: captionRef.current?.value,
+      caption,
       profileImg: session?.user?.image,
       timestamp: serverTimestamp(),
     });
@@ -68,6 +71,7 @@ function Modal() {
     setOpen(false);
     setLoading(false);
     setSelectedFile(null);
+    setCaption("");
   };
 
   return (
@@ -143,20 +147,12 @@ function Modal() {
                     </div>
                   </div>
 
-                  <div className="mt-2">
-                    <Caption />
-                    {/* <input
-                      ref={captionRef}
-                      type="text"
-                      className="border-none focus:ring-0 w-full text-center"
-                      placeholder="Please enter a caption..."
-                    /> */}
-                  </div>
+                  <div className="mt-2">{selectedFile && <Caption />}</div>
                 </div>
                 <div className="mt-5 sm:mt-6">
                   <button
                     onClick={uploadPost}
-                    disabled={!selectedFile}
+                    disabled={!selectedFile || caption === ""}
                     type="button"
                     className="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:text-sm disabled:bg-gray-300 disabled:cursor-not-allowed hover:disabled:bg-gray-300"
                   >
