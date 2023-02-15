@@ -64,7 +64,11 @@ function Header() {
 
         <div className="flex items-center justify-end space-x-4">
           <HomeIcon onClick={() => router.push("/")} className="navBtn" />
-          <Bars3Icon className="h-6 md:hidden cursor-pointer" />
+          <PlusCircleIcon
+            onClick={() => setOpen(!open)}
+            className="h-6 md:hidden cursor-pointer"
+          />
+          {/* ToDo: Add a flyout to invoke menu items } <Bars3Icon className="h-6 md:hidden cursor-pointer" /> */}
           {session ? (
             <>
               <div className="relative navBtn">
