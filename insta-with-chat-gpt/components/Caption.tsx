@@ -121,7 +121,7 @@ function Caption() {
                     height={30}
                     alt="1 icon"
                   />
-                  <p className="text-left font-medium">Select your captions.</p>
+                  <p className="text-left font-medium">Select your caption.</p>
                 </div>
                 <div className="space-y-8 flex flex-col items-center justify-center max-w-xl mx-auto">
                   {generatedCaptions
