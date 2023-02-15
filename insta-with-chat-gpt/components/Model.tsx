@@ -13,6 +13,7 @@ import {
 } from "@firebase/firestore";
 import { useSession } from "next-auth/react";
 import { ref, getDownloadURL, uploadString } from "@firebase/storage";
+import Caption from "./Caption";
 
 function Modal() {
   const { data: session } = useSession();
@@ -49,8 +50,6 @@ function Modal() {
       profileImg: session?.user?.image,
       timestamp: serverTimestamp(),
     });
-
-    console.log("New doc added with ID: ", docRef.id);
 
     const imageRef = ref(storage, `posts/${docRef.id}/image`);
 
@@ -145,12 +144,13 @@ function Modal() {
                   </div>
 
                   <div className="mt-2">
-                    <input
+                    <Caption />
+                    {/* <input
                       ref={captionRef}
                       type="text"
                       className="border-none focus:ring-0 w-full text-center"
                       placeholder="Please enter a caption..."
-                    />
+                    /> */}
                   </div>
                 </div>
                 <div className="mt-5 sm:mt-6">
