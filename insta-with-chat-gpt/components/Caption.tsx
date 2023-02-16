@@ -6,15 +6,19 @@ import { AnimatePresence, motion } from "framer-motion";
 import ResizablePanel from "./ResizablePanel";
 import { useRecoilState } from "recoil";
 import { captionState } from "../atoms/captionAtom";
-import { modalState } from "../atoms/modalAtom";
+import { textToImageModalState } from "../atoms/textToImageModalAtom";
 import { captionModalState } from "../atoms/captionModalAtom";
+import { imageToTextModalState } from "../atoms/imageToTextModalAtom";
 
 function Caption() {
   const [loading, setLoading] = useState(false);
   const [caption, setCaption] = useRecoilState(captionState);
   const [vibe, setVibe] = useState<VibeType>("Standard");
   const [generatedCaptions, setGeneratedCaptions] = useState<String>("");
-  const [, setOpen] = useRecoilState(modalState);
+  const [textToImageModalOpen, setTextToImageModalOpen] = useRecoilState(
+    textToImageModalState
+  );
+  const [, setimageToTexModalOpen] = useRecoilState(imageToTextModalState);
   const [, setCaptionModalOpen] = useRecoilState(captionModalState);
 
   const prompt =
@@ -67,7 +71,11 @@ function Caption() {
 
   const handleSelectedCaption = (selectedCaption: string) => {
     setCaption(selectedCaption);
-    setOpen(false);
+    if (textToImageModalOpen) {
+      setTextToImageModalOpen(false);
+    } else {
+      setimageToTexModalOpen(false);
+    }
     setCaptionModalOpen(true);
   };
   return (

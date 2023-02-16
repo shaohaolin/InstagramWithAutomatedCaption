@@ -261,7 +261,6 @@ export function onGenerationComplete(
     try {
       const imageBase64 = artifact.getBinary_asB64();
       imageUrl = `data:image/png;base64,${imageBase64}`;
-      console.log("Image URL:", imageUrl);
     } catch (error) {
       console.error("Failed to write resulting image to disk", error);
     }

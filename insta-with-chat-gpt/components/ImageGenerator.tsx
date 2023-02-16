@@ -22,7 +22,7 @@ function ImageGenerator() {
     type: "text-to-image",
     prompts: [
       {
-        text: captionToPromots,
+        text: `An oil painting of ${captionToPromots}`,
       },
     ],
     width: 512,

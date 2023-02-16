@@ -1,21 +1,17 @@
 import Image from "next/image";
 import {
-  Bars3Icon,
   HeartIcon,
   HomeIcon,
   MagnifyingGlassIcon,
   PaperAirplaneIcon,
-  PlusCircleIcon,
   UserGroupIcon,
 } from "@heroicons/react/24/outline";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { useRecoilState } from "recoil";
-import { modalState } from "../atoms/modalAtom";
+import UploadMenu from "./UploadMenu";
 
 function Header() {
   const { data: session } = useSession();
-  const [open, setOpen] = useRecoilState(modalState);
   const router = useRouter();
 
   return (
@@ -64,13 +60,12 @@ function Header() {
 
         <div className="flex items-center justify-end space-x-4">
           <HomeIcon onClick={() => router.push("/")} className="navBtn" />
+          {/* Show Upload menu in small screen only */}
           {session && (
-            <Bars3Icon
-              onClick={() => setOpen(!open)}
-              className="h-10 md:hidden cursor-pointer"
-            />
+            <div className="md:hidden">
+              <UploadMenu />
+            </div>
           )}
-          {/* ToDo: Add a flyout to invoke menu items } <Bars3Icon className="h-6 md:hidden cursor-pointer" /> */}
           {session ? (
             <>
               <div className="relative navBtn">
@@ -79,10 +74,10 @@ function Header() {
                   3
                 </div>
               </div>
-              <PlusCircleIcon
-                onClick={() => setOpen(!open)}
-                className="navBtn"
-              />
+              {/* Hide Upload menu in small screen and show in bigger screen */}
+              <div className="hidden md:flex">
+                <UploadMenu />
+              </div>
               <UserGroupIcon className="navBtn" />
               <HeartIcon className="navBtn" />
               <img

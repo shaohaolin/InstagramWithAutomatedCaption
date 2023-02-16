@@ -1,12 +1,12 @@
 import { useRecoilState } from "recoil";
-import { modalState } from "../atoms/modalAtom";
+import { textToImageModalState } from "../atoms/textToImageModalAtom";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import { CameraIcon } from "@heroicons/react/24/outline";
 import Caption from "./Caption";
 
 function ImageGeneratedModal() {
-  const [open, setOpen] = useRecoilState(modalState);
+  const [open, setOpen] = useRecoilState(textToImageModalState);
 
   return (
     <Transition.Root show={open} as={Fragment}>

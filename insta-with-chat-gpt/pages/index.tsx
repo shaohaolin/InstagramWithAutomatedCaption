@@ -21,7 +21,7 @@ const Home: NextPage = () => {
       <Feed />
       {/* Modal */}
       <Modal />
-      {/* <ImageGeneratedModal />*/}
+      <ImageGeneratedModal />
       <CaptionModal />
     </div>
   );

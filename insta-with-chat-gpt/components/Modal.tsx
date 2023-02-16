@@ -1,94 +1,43 @@
 import { useRecoilState } from "recoil";
-import { modalState } from "../atoms/modalAtom";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useRef, useState } from "react";
 import { CameraIcon } from "@heroicons/react/24/outline";
-import { db, storage } from "../firebase";
-import {
-  addDoc,
-  collection,
-  doc,
-  serverTimestamp,
-  updateDoc,
-} from "@firebase/firestore";
-import { useSession } from "next-auth/react";
-import { ref, getDownloadURL, uploadString } from "@firebase/storage";
 import Caption from "./Caption";
 import { captionState } from "../atoms/captionAtom";
 import { imageState } from "../atoms/imageAtom";
+import LoadingDots from "./LoadingDots";
+import { imageToTextModalState } from "../atoms/imageToTextModalAtom";
 
 function Modal() {
-  const { data: session } = useSession();
-  const [open, setOpen] = useRecoilState(modalState);
-  const [caption, setCaption] = useRecoilState(captionState);
-  const [, setGeneratedImage] = useRecoilState(imageState);
+  const [open, setOpen] = useRecoilState(imageToTextModalState);
+  const [generatedImage, setGeneratedImage] = useRecoilState(imageState);
+  const [generatedCaption, setGeneratedCaption] =
+    useRecoilState<string>(captionState);
   const filePickerRef = useRef<HTMLInputElement>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
-  const [generatedCaption, setGeneratedCaption] = useState<string>("");
-  const [error, setError] = useState<string | null>(null);
 
-  console.log(`captions: ${caption}`);
+  const [error, setError] = useState<string | null>(null);
 
   const addImageToPost = (e: React.ChangeEvent<HTMLInputElement>) => {
     const reader = new FileReader();
     if (e.target.files) {
       reader.readAsDataURL(e.target.files[0]);
       reader.onload = (readerEvent) => {
-        setSelectedFile(readerEvent.target?.result as unknown as File);
         setGeneratedImage(readerEvent.target?.result as unknown as string);
       };
     }
   };
 
-  const uploadPost = async () => {
-    if (loading) return;
-
-    setLoading(true);
-
-    // 1) Create a post and add to firestore 'posts' collection
-    // 2) Get the post ID for the newly created post
-    // 3) Upload the image to firebase storage with the post ID
-    // 4) Get a download URL from firebase storage for the image update the original post with image
-
-    const docRef = await addDoc(collection(db, "posts"), {
-      //@ts-expect-error
-      username: session?.user?.username,
-      caption,
-      profileImg: session?.user?.image,
-      timestamp: serverTimestamp(),
-    });
-
-    const imageRef = ref(storage, `posts/${docRef.id}/image`);
-
-    await uploadString(
-      imageRef,
-      selectedFile as unknown as string,
-      "data_url"
-    ).then(async (snapshot) => {
-      const downloadURL = await getDownloadURL(imageRef);
-
-      await updateDoc(doc(db, "posts", docRef.id), {
-        image: downloadURL,
-      });
-    });
-
-    setOpen(false);
-    setLoading(false);
-    setSelectedFile(null);
-    setCaption("");
-  };
-
   const generateCaption = async (e: any) => {
     e.preventDefault();
-    await new Promise((resolve) => setTimeout(resolve, 500));
     setLoading(true);
+    await new Promise((resolve) => setTimeout(resolve, 5000));
     const res = await fetch("/api/image-to-text", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ imageUrl: selectedFile }),
+      body: JSON.stringify({ imageUrl: generatedImage }),
     });
 
     let newCaption = await res.json();
@@ -96,7 +45,6 @@ function Modal() {
       setError(newCaption);
     } else {
       setGeneratedCaption(newCaption);
-      setCaption(newCaption);
     }
     setLoading(false);
   };
@@ -135,13 +83,13 @@ function Modal() {
             leaveFrom="opacity-100 translate-y-0 sm:scale-100"
             leaveTo="opacity-0 translate-y-4 sm:translate-y sm:scale-95"
           >
-            <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6">
+            <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full sm:p-6 w-full">
               <div>
-                {selectedFile ? (
+                {generatedImage ? (
                   <img
-                    src={selectedFile as unknown as string}
-                    className="w-full object-contain cursor-pointer"
-                    onClick={() => setSelectedFile(null)}
+                    src={generatedImage as unknown as string}
+                    className="object-contain cursor-pointer w-full"
+                    onClick={() => setGeneratedImage(null)}
                   />
                 ) : (
                   <div
@@ -188,23 +136,22 @@ function Modal() {
                   </div>
                 </div>
                 <div className="mt-5 sm:mt-6">
-                  {generatedCaption ? (
-                    <button
-                      onClick={uploadPost}
-                      disabled={!selectedFile || caption === ""}
-                      type="button"
-                      className="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:text-sm disabled:bg-gray-300 disabled:cursor-not-allowed hover:disabled:bg-gray-300"
-                    >
-                      {loading ? "Uploading..." : "Upload Post"}
-                    </button>
-                  ) : (
+                  {!generatedCaption && !loading && (
                     <button
                       onClick={generateCaption}
-                      disabled={!selectedFile}
+                      disabled={!generatedImage}
                       type="button"
                       className="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:text-sm disabled:bg-gray-300 disabled:cursor-not-allowed hover:disabled:bg-gray-300"
                     >
                       Image to text
+                    </button>
+                  )}
+                  {loading && (
+                    <button
+                      className="bg-black rounded-xl text-white font-medium px-4 py-2 sm:mt-10 mt-8 hover:bg-black/80 w-full"
+                      disabled
+                    >
+                      <LoadingDots color="white" style="large" />
                     </button>
                   )}
                 </div>
