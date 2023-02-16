@@ -15,15 +15,18 @@ import { useSession } from "next-auth/react";
 import { ref, getDownloadURL, uploadString } from "@firebase/storage";
 import Caption from "./Caption";
 import { captionState } from "../atoms/captionAtom";
-import { captionModalState } from "../atoms/captionModalAtom";
+import { imageState } from "../atoms/imageAtom";
 
 function Modal() {
   const { data: session } = useSession();
   const [open, setOpen] = useRecoilState(modalState);
   const [caption, setCaption] = useRecoilState(captionState);
+  const [, setGeneratedImage] = useRecoilState(imageState);
   const filePickerRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [generatedCaption, setGeneratedCaption] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
 
   console.log(`captions: ${caption}`);
 
@@ -33,6 +36,7 @@ function Modal() {
       reader.readAsDataURL(e.target.files[0]);
       reader.onload = (readerEvent) => {
         setSelectedFile(readerEvent.target?.result as unknown as File);
+        setGeneratedImage(readerEvent.target?.result as unknown as string);
       };
     }
   };
@@ -73,6 +77,28 @@ function Modal() {
     setLoading(false);
     setSelectedFile(null);
     setCaption("");
+  };
+
+  const generateCaption = async (e: any) => {
+    e.preventDefault();
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    setLoading(true);
+    const res = await fetch("/api/image-to-text", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ imageUrl: selectedFile }),
+    });
+
+    let newCaption = await res.json();
+    if (res.status !== 200) {
+      setError(newCaption);
+    } else {
+      setGeneratedCaption(newCaption);
+      setCaption(newCaption);
+    }
+    setLoading(false);
   };
 
   return (
@@ -148,17 +174,39 @@ function Modal() {
                     </div>
                   </div>
 
-                  <div className="mt-2">{selectedFile && <Caption />}</div>
+                  <div className="mt-2">{generatedCaption}</div>
+                  <div className="mt-2">{generatedCaption && <Caption />}</div>
+                  <div className="mt-2">
+                    {error && (
+                      <div
+                        className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl mt-8"
+                        role="alert"
+                      >
+                        <span className="block sm:inline">{error}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className="mt-5 sm:mt-6">
-                  <button
-                    onClick={uploadPost}
-                    disabled={!selectedFile || caption === ""}
-                    type="button"
-                    className="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:text-sm disabled:bg-gray-300 disabled:cursor-not-allowed hover:disabled:bg-gray-300"
-                  >
-                    {loading ? "Uploading..." : "Upload Post"}
-                  </button>
+                  {generatedCaption ? (
+                    <button
+                      onClick={uploadPost}
+                      disabled={!selectedFile || caption === ""}
+                      type="button"
+                      className="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:text-sm disabled:bg-gray-300 disabled:cursor-not-allowed hover:disabled:bg-gray-300"
+                    >
+                      {loading ? "Uploading..." : "Upload Post"}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={generateCaption}
+                      disabled={!selectedFile}
+                      type="button"
+                      className="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:text-sm disabled:bg-gray-300 disabled:cursor-not-allowed hover:disabled:bg-gray-300"
+                    >
+                      Image to text
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

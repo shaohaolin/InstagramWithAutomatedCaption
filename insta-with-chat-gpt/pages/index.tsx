@@ -20,8 +20,8 @@ const Home: NextPage = () => {
       {/* Feed */}
       <Feed />
       {/* Modal */}
-      {/* <Modal /> */}
-      <ImageGeneratedModal />
+      <Modal />
+      {/* <ImageGeneratedModal />*/}
       <CaptionModal />
     </div>
   );
