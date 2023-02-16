@@ -4,4 +4,10 @@ module.exports = {
   images: {
     domains: ["links.papareact.com"],
   },
+  webpack5: true,
+  webpack: (config) => {
+    config.resolve.fallback = { fs: false };
+
+    return config;
+  },
 };

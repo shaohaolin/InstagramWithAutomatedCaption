@@ -6,12 +6,17 @@ import { AnimatePresence, motion } from "framer-motion";
 import ResizablePanel from "./ResizablePanel";
 import { useRecoilState } from "recoil";
 import { captionState } from "../atoms/captionAtom";
+import { modalState } from "../atoms/modalAtom";
+import { captionModalState } from "../atoms/captionModalAtom";
 
 function Caption() {
   const [loading, setLoading] = useState(false);
   const [caption, setCaption] = useRecoilState(captionState);
   const [vibe, setVibe] = useState<VibeType>("Standard");
   const [generatedCaptions, setGeneratedCaptions] = useState<String>("");
+  const [open, setOpen] = useRecoilState(modalState);
+  const [openCaptionModal, setCaptionModalOpen] =
+    useRecoilState(captionModalState);
 
   const prompt =
     vibe === "Funny"
@@ -61,6 +66,11 @@ function Caption() {
     setLoading(false);
   };
 
+  const handleSelectedCaption = (selectedCaption: string) => {
+    setCaption(selectedCaption);
+    setOpen(false);
+    setCaptionModalOpen(true);
+  };
   return (
     <>
       <div className="max-w-xl w-full">
@@ -132,7 +142,9 @@ function Caption() {
                         <div
                           className="bg-white rounded-xl shadow-md p-4 hover:bg-gray-100 transition cursor-copy border"
                           key={generatedCaption}
-                          onClick={() => setCaption(generatedCaption)}
+                          onClick={() =>
+                            handleSelectedCaption(generatedCaption)
+                          }
                         >
                           <p>{generatedCaption}</p>
                         </div>

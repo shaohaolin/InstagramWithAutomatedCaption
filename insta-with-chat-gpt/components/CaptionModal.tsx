@@ -1,5 +1,4 @@
 import { useRecoilState } from "recoil";
-import { modalState } from "../atoms/modalAtom";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useRef, useState } from "react";
 import { CameraIcon } from "@heroicons/react/24/outline";
@@ -12,30 +11,18 @@ import {
   updateDoc,
 } from "@firebase/firestore";
 import { useSession } from "next-auth/react";
-import { ref, getDownloadURL, uploadString } from "@firebase/storage";
-import Caption from "./Caption";
 import { captionState } from "../atoms/captionAtom";
 import { captionModalState } from "../atoms/captionModalAtom";
+import ImageGenerator from "./ImageGenerator";
+import { imageState } from "../atoms/imageAtom";
+import { ref, getDownloadURL, uploadString } from "@firebase/storage";
 
-function Modal() {
+function CaptionModal() {
   const { data: session } = useSession();
-  const [open, setOpen] = useRecoilState(modalState);
+  const [open, setOpen] = useRecoilState(captionModalState);
   const [caption, setCaption] = useRecoilState(captionState);
-  const filePickerRef = useRef<HTMLInputElement>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
-
-  console.log(`captions: ${caption}`);
-
-  const addImageToPost = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const reader = new FileReader();
-    if (e.target.files) {
-      reader.readAsDataURL(e.target.files[0]);
-      reader.onload = (readerEvent) => {
-        setSelectedFile(readerEvent.target?.result as unknown as File);
-      };
-    }
-  };
+  const [generatedImage, setGeneratedImage] = useRecoilState(imageState);
 
   const uploadPost = async () => {
     if (loading) return;
@@ -57,21 +44,19 @@ function Modal() {
 
     const imageRef = ref(storage, `posts/${docRef.id}/image`);
 
-    await uploadString(
-      imageRef,
-      selectedFile as unknown as string,
-      "data_url"
-    ).then(async (snapshot) => {
-      const downloadURL = await getDownloadURL(imageRef);
+    await uploadString(imageRef, generatedImage as string, "data_url").then(
+      async (snapshot) => {
+        const downloadURL = await getDownloadURL(imageRef);
 
-      await updateDoc(doc(db, "posts", docRef.id), {
-        image: downloadURL,
-      });
-    });
+        await updateDoc(doc(db, "posts", docRef.id), {
+          image: downloadURL,
+        });
+      }
+    );
 
     setOpen(false);
     setLoading(false);
-    setSelectedFile(null);
+    setGeneratedImage(null);
     setCaption("");
   };
 
@@ -111,55 +96,54 @@ function Modal() {
           >
             <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6">
               <div>
-                {selectedFile ? (
+                {generatedImage ? (
                   <img
-                    src={selectedFile as unknown as string}
+                    src={generatedImage}
                     className="w-full object-contain cursor-pointer"
-                    onClick={() => setSelectedFile(null)}
                   />
                 ) : (
-                  <div
-                    onClick={() => filePickerRef.current?.click()}
-                    className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 cursor-pointer"
-                  >
+                  <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 cursor-pointer">
                     <CameraIcon
                       className="h-6 w-6 text-red-600"
                       aria-hidden="true"
                     />
                   </div>
                 )}
+              </div>
 
-                <div>
-                  <div className="mt-3 text-center sm:mt-5">
-                    <Dialog.Title
-                      as="h3"
-                      className="text-lg leading-6 font-medium text-gray-900"
-                    >
-                      Upload a photo
-                    </Dialog.Title>
-
-                    <div>
-                      <input
-                        ref={filePickerRef}
-                        type="file"
-                        hidden
-                        onChange={addImageToPost}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="mt-2">{selectedFile && <Caption />}</div>
+              <div>
+                <div className="mt-3 text-center sm:mt-5">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg leading-6 font-medium text-gray-900"
+                  >
+                    Upload a photo
+                  </Dialog.Title>
                 </div>
-                <div className="mt-5 sm:mt-6">
+
+                <div className="mt-2">
+                  <div
+                    className="bg-white rounded-xl shadow-md p-4 hover:bg-gray-100 transition cursor-copy border"
+                    key={caption}
+                    onClick={() => setCaption(caption)}
+                  >
+                    <p>{caption}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-5 sm:mt-6">
+                {generatedImage ? (
                   <button
                     onClick={uploadPost}
-                    disabled={!selectedFile || caption === ""}
+                    disabled={!generatedImage || caption === ""}
                     type="button"
                     className="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:text-sm disabled:bg-gray-300 disabled:cursor-not-allowed hover:disabled:bg-gray-300"
                   >
                     {loading ? "Uploading..." : "Upload Post"}
                   </button>
-                </div>
+                ) : (
+                  <ImageGenerator />
+                )}
               </div>
             </div>
           </Transition.Child>
@@ -169,4 +153,4 @@ function Modal() {
   );
 }
 
-export default Modal;
+export default CaptionModal;

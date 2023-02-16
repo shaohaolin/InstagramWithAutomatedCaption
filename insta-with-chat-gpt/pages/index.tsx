@@ -1,7 +1,9 @@
 import type { NextPage } from "next";
 import Head from "next/head";
+import CaptionModal from "../components/CaptionModal";
 import Feed from "../components/Feed";
 import Header from "../components/Header";
+import ImageGeneratedModal from "../components/ImageGeneratedModal";
 import Modal from "../components/Modal";
 
 const Home: NextPage = () => {
@@ -18,7 +20,9 @@ const Home: NextPage = () => {
       {/* Feed */}
       <Feed />
       {/* Modal */}
-      <Modal />
+      {/* <Modal /> */}
+      <ImageGeneratedModal />
+      <CaptionModal />
     </div>
   );
 };
