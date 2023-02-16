@@ -74,13 +74,7 @@ function Caption() {
     <>
       <div className="max-w-xl w-full">
         <div className="flex mt-10 items-center space-x-3">
-          <Image
-            src="/1-black.png"
-            width={30}
-            height={30}
-            alt="1 icon"
-            className="mb-5 sm:mb-0"
-          />
+          <Image src="/1-black.png" width={30} height={30} alt="1 icon" />
           <p className="text-left font-medium">Please enter a caption.</p>
         </div>
         <textarea
@@ -93,7 +87,7 @@ function Caption() {
           }
         />
         <div className="flex mb-5 items-center space-x-3">
-          <Image src="/2-black.png" width={30} height={30} alt="1 icon" />
+          <Image src="/2-black.png" width={30} height={30} alt="2 icon" />
           <p className="text-left font-medium">Select your vibe.</p>
         </div>
         <div className="block">

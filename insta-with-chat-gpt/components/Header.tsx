@@ -64,10 +64,12 @@ function Header() {
 
         <div className="flex items-center justify-end space-x-4">
           <HomeIcon onClick={() => router.push("/")} className="navBtn" />
-          <Bars3Icon
-            onClick={() => setOpen(!open)}
-            className="h-10 md:hidden cursor-pointer"
-          />
+          {session && (
+            <Bars3Icon
+              onClick={() => setOpen(!open)}
+              className="h-10 md:hidden cursor-pointer"
+            />
+          )}
           {/* ToDo: Add a flyout to invoke menu items } <Bars3Icon className="h-6 md:hidden cursor-pointer" /> */}
           {session ? (
             <>
@@ -91,7 +93,10 @@ function Header() {
               />
             </>
           ) : (
-            <button className="py-2 px-4 rounded-full" onClick={() => signIn()}>
+            <button
+              className="py-2 px-4 rounded-full text-xs md:text-base"
+              onClick={() => signIn()}
+            >
               Sign In
             </button>
           )}

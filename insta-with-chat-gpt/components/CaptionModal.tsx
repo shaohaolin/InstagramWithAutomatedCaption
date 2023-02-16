@@ -102,7 +102,7 @@ function CaptionModal() {
                     className="w-full object-contain cursor-pointer"
                   />
                 ) : (
-                  <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 cursor-pointer">
+                  <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
                     <CameraIcon
                       className="h-6 w-6 text-red-600"
                       aria-hidden="true"
