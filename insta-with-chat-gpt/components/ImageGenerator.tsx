@@ -16,11 +16,13 @@ function ImageGenerator() {
   const [caption] = useRecoilState(captionState);
   const [, setGeneratedImage] = useRecoilState(imageState);
 
+  const captionToPromots = caption.split("#")[0];
+
   const request = buildGenerationRequest("stable-diffusion-512-v2-1", {
     type: "text-to-image",
     prompts: [
       {
-        text: caption,
+        text: captionToPromots,
       },
     ],
     width: 512,

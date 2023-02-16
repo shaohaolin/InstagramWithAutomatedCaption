@@ -14,16 +14,15 @@ function Caption() {
   const [caption, setCaption] = useRecoilState(captionState);
   const [vibe, setVibe] = useState<VibeType>("Standard");
   const [generatedCaptions, setGeneratedCaptions] = useState<String>("");
-  const [open, setOpen] = useRecoilState(modalState);
-  const [openCaptionModal, setCaptionModalOpen] =
-    useRecoilState(captionModalState);
+  const [, setOpen] = useRecoilState(modalState);
+  const [, setCaptionModalOpen] = useRecoilState(captionModalState);
 
   const prompt =
     vibe === "Funny"
-      ? `Generate 2 funny instagram captions with 2 hashtags and clearly labeled "1." and "2.". Make sure there is a joke in there and it's a little ridiculous. Make sure each generated caption is at max 30 words and base it on this context: ${caption}${
+      ? `Generate 2 funny instagram captions with 2 hashtags in the end and clearly labeled "1." and "2.". Make sure there is a joke in there and it's a little ridiculous. Make sure each generated caption is at max 30 words and base it on this context: ${caption}${
           caption.slice(-1) === "." ? "" : "."
         }`
-      : `Generate 2 ${vibe} twitter captions with 2 hashtags and clearly labeled "1." and "2.". Make sure each generated caption is at least 14 words and at max 25 words and base them on this context: ${caption}${
+      : `Generate 2 ${vibe} twitter captions with 2 hashtags in the end and clearly labeled "1." and "2.". Make sure each generated caption is at least 14 words and at max 25 words and base them on this context: ${caption}${
           caption.slice(-1) === "." ? "" : "."
         }`;
 

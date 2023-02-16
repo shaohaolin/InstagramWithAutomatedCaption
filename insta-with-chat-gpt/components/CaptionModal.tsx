@@ -117,7 +117,7 @@ function CaptionModal() {
                     as="h3"
                     className="text-lg leading-6 font-medium text-gray-900"
                   >
-                    Upload a photo
+                    Upload a post
                   </Dialog.Title>
                 </div>
 
