@@ -44,7 +44,8 @@ function Modal() {
     if (res.status !== 200) {
       setError(newCaption);
     } else {
-      setGeneratedCaption(newCaption);
+      const trimmedCaption = newCaption.split("Caption: ")[1];
+      setGeneratedCaption(trimmedCaption);
     }
     setLoading(false);
   };
