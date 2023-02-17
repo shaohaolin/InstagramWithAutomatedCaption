@@ -22,7 +22,7 @@ function ImageGenerator() {
     type: "text-to-image",
     prompts: [
       {
-        text: `An oil painting of ${captionToPromots}`,
+        text: `A professional color photograph of ${captionToPromots}, realistic, trending on artstation, cinematic, epic compostion, 8k, 4k, sharp, fujifilm : 1 | centered : .1`,
       },
     ],
     width: 512,
